@@ -1,5 +1,6 @@
 import 'package:device_frame/device_frame.dart';
 import 'package:ezy_appbuilder/core/constants/app_constants.dart';
+import 'package:ezy_appbuilder/features/appbuilder/data/models/widget_info.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/widgets/empty_canvas.dart';
 import 'package:flutter/material.dart';
 import 'package:json_ui_builder/json_ui_builder.dart';
@@ -12,7 +13,7 @@ class CanvasViewport extends StatelessWidget {
   });
 
   final Map<String, dynamic> screenMap;
-  final void Function(DragTargetDetails<String>) onDragAccept;
+  final void Function(DragTargetDetails<WidgetInfo>) onDragAccept;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class CanvasViewport extends StatelessWidget {
           device: Devices.ios.iPhone16ProMax,
           isFrameVisible: true,
           orientation: Orientation.portrait,
-          screen: DragTarget(
+          screen: DragTarget<WidgetInfo>(
             onAcceptWithDetails: onDragAccept,
             onWillAcceptWithDetails: (details) => true,
             builder: (context, candidateData, rejectedData) {

@@ -100,67 +100,67 @@
 //   }
 // }
 
-// /// Common empty state widget
-// class EmptyStateWidget extends StatelessWidget {
-//   final String message;
-//   final String? title;
-//   final IconData? icon;
-//   final Widget? action;
-
-//   const EmptyStateWidget({
-//     super.key,
-//     required this.message,
-//     this.title,
-//     this.icon,
-//     this.action,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Padding(
-//         padding: const EdgeInsets.all(AppConstants.spacingL),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Icon(
-//               icon ?? Icons.inbox_outlined,
-//               size: 64,
-//               color: AppTheme.textHintColor,
-//             ),
-//             const SizedBox(height: AppConstants.spacingM),
-//             if (title != null) ...[
-//               Text(
-//                 title!,
-//                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-//                   color: AppTheme.textPrimaryColor,
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//                 textAlign: TextAlign.center,
-//               ),
-//               const SizedBox(height: AppConstants.spacingS),
-//             ],
-//             Text(
-//               message,
-//               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-//                 color: AppTheme.textSecondaryColor,
-//               ),
-//               textAlign: TextAlign.center,
-//             ),
-//             if (action != null) ...[
-//               const SizedBox(height: AppConstants.spacingL),
-//               action!,
-//             ],
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:ezy_appbuilder/core/constants/app_constants.dart';
 import 'package:ezy_appbuilder/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+
+/// Common empty state widget
+class EmptyStateWidget extends StatelessWidget {
+  final String message;
+  final String? title;
+  final IconData? icon;
+  final Widget? action;
+
+  const EmptyStateWidget({
+    super.key,
+    required this.message,
+    this.title,
+    this.icon,
+    this.action,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppConstants.spacingL),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon ?? Icons.inbox_outlined,
+              size: 64,
+              color: AppTheme.textHintColor,
+            ),
+            const SizedBox(height: AppConstants.spacingM),
+            if (title != null) ...[
+              Text(
+                title!,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppTheme.textPrimaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppConstants.spacingS),
+            ],
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppTheme.textSecondaryColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (action != null) ...[
+              const SizedBox(height: AppConstants.spacingL),
+              action!,
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Common section header widget
 class SectionHeaderWidget extends StatelessWidget {
@@ -221,105 +221,105 @@ class SectionHeaderWidget extends StatelessWidget {
   }
 }
 
-// /// Custom search bar widget
-// class SearchBarWidget extends StatelessWidget {
-//   final String hintText;
-//   final ValueChanged<String>? onChanged;
-//   final VoidCallback? onClear;
-//   final TextEditingController? controller;
+/// Custom search bar widget
+class SearchBarWidget extends StatelessWidget {
+  final String hintText;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onClear;
+  final TextEditingController? controller;
 
-//   const SearchBarWidget({
-//     super.key,
-//     this.hintText = 'Search...',
-//     this.onChanged,
-//     this.onClear,
-//     this.controller,
-//   });
+  const SearchBarWidget({
+    super.key,
+    this.hintText = 'Search...',
+    this.onChanged,
+    this.onClear,
+    this.controller,
+  });
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(
-//         horizontal: AppConstants.spacingM,
-//         vertical: AppConstants.spacingS,
-//       ),
-//       child: TextField(
-//         controller: controller,
-//         onChanged: onChanged,
-//         decoration: InputDecoration(
-//           hintText: hintText,
-//           prefixIcon: const Icon(Icons.search),
-//           suffixIcon: controller?.text.isNotEmpty == true || onClear != null
-//               ? IconButton(
-//                   icon: const Icon(Icons.clear),
-//                   onPressed: () {
-//                     controller?.clear();
-//                     onClear?.call();
-//                     onChanged?.call('');
-//                   },
-//                 )
-//               : null,
-//           border: OutlineInputBorder(
-//             borderRadius: BorderRadius.circular(AppConstants.borderRadiusM),
-//           ),
-//           contentPadding: const EdgeInsets.symmetric(
-//             horizontal: AppConstants.spacingM,
-//             vertical: AppConstants.spacingS,
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppConstants.spacingM,
+        vertical: AppConstants.spacingS,
+      ),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: hintText,
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: controller?.text.isNotEmpty == true || onClear != null
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    controller?.clear();
+                    onClear?.call();
+                    onChanged?.call('');
+                  },
+                )
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppConstants.borderRadiusM),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.spacingM,
+            vertical: AppConstants.spacingS,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-// /// Custom chip widget for categories/tags
-// class CustomChipWidget extends StatelessWidget {
-//   final String label;
-//   final bool isSelected;
-//   final VoidCallback? onTap;
-//   final Color? selectedColor;
-//   final Color? unselectedColor;
+/// Custom chip widget for categories/tags
+class CustomChipWidget extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback? onTap;
+  final Color? selectedColor;
+  final Color? unselectedColor;
 
-//   const CustomChipWidget({
-//     super.key,
-//     required this.label,
-//     this.isSelected = false,
-//     this.onTap,
-//     this.selectedColor,
-//     this.unselectedColor,
-//   });
+  const CustomChipWidget({
+    super.key,
+    required this.label,
+    this.isSelected = false,
+    this.onTap,
+    this.selectedColor,
+    this.unselectedColor,
+  });
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Container(
-//         padding: const EdgeInsets.symmetric(
-//           horizontal: AppConstants.spacingM,
-//           vertical: AppConstants.spacingS,
-//         ),
-//         decoration: BoxDecoration(
-//           color: isSelected
-//               ? (selectedColor ?? AppTheme.primaryColor)
-//               : (unselectedColor ?? Colors.transparent),
-//           border: Border.all(
-//             color: isSelected
-//                 ? (selectedColor ?? AppTheme.primaryColor)
-//                 : AppTheme.borderColor,
-//           ),
-//           borderRadius: BorderRadius.circular(AppConstants.borderRadiusL),
-//         ),
-//         child: Text(
-//           label,
-//           style: TextStyle(
-//             color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
-//             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppConstants.spacingM,
+          vertical: AppConstants.spacingS,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (selectedColor ?? AppTheme.primaryColor)
+              : (unselectedColor ?? Colors.transparent),
+          border: Border.all(
+            color: isSelected
+                ? (selectedColor ?? AppTheme.primaryColor)
+                : AppTheme.borderColor,
+          ),
+          borderRadius: BorderRadius.circular(AppConstants.borderRadiusL),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppTheme.textPrimaryColor,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 /// Custom draggable item widget
 class DraggableItemWidget extends StatelessWidget {
