@@ -11,7 +11,9 @@ dependencies:
     sdk: flutter
   cupertino_icons: 1.0.8
   json_ui_builder:
-    path: ../json_ui_builder
+    # path: ../json_ui_builder
+    git:
+      url: https://github.com/mahadydev/json_ui_builder
 
   shared_preferences: 2.5.3
   freezed_annotation: 3.1.0
