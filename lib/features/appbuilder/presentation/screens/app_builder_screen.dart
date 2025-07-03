@@ -1,6 +1,6 @@
 import 'package:ezy_appbuilder/features/appbuilder/presentation/providers/notifiers/appbuilder_state_provider.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/views/canvas_view.dart';
-import 'package:ezy_appbuilder/features/appbuilder/presentation/views/propery_editor_view.dart';
+import 'package:ezy_appbuilder/features/appbuilder/presentation/views/property_editor_view.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/views/widget_palettes_view.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/widgets/appbar.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +29,7 @@ class AppBuilderScreen extends ConsumerWidget {
 
         Expanded(flex: 3, child: CanvasView()),
 
-        ProperyEditorView(),
+        PropertyEditorView(),
       ],
     );
   }

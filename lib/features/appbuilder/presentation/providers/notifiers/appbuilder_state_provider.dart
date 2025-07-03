@@ -26,6 +26,7 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
   /// Add a widget to the canvas root (or as a child in the future)
   void addWidgetToCanvas(String widgetType) {
     final builder = JsonUIBuilder();
+
     if (state.theJson.isEmpty && widgetType != 'Scaffold') {
       return Toast.error('Canvas is empty. Please add a scaffold first.');
     } else {
@@ -44,9 +45,18 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
           }
           break;
         case 'Column':
-          // Handle adding a Column widget
+          final columnConfig = WidgetConfig(type: 'Column');
+          final currentJson = builder.jsonToConfig(state.theJson);
+          if (currentJson.type == 'Scaffold') {
+            currentJson.child = columnConfig;
+            state = state.copyWith(theJson: builder.configToJson(currentJson));
+          } else {
+            return Toast.error('Please add a Scaffold first.');
+          }
           break;
+
         default:
+          break;
       }
     }
     debugPrint('${state.theJson}');
