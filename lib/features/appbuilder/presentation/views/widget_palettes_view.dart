@@ -31,10 +31,12 @@ class WidgetPalettesView extends StatelessWidget {
   }
 
   Widget _buildWidgetList() {
-    final widgets =
+    final List<String> widgets =
         JsonUIBuilder().getPackageInfo()['widget_types'] is List<String>
         ? JsonUIBuilder().getPackageInfo()['widget_types']
         : [];
+
+    widgets.sort((a, b) => a.compareTo(b));
 
     return Expanded(
       child: ListView.builder(

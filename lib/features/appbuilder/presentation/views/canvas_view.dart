@@ -30,11 +30,8 @@ class CanvasView extends ConsumerWidget {
       onDragAccept: (details) {
         ref
             .read(appBuilderStateNotifierProvider.notifier)
-            .addScaffoldWithAppBar();
+            .addWidgetToCanvas(details.data);
         debugPrint('Drag accepted with details: ${details.data}');
-        debugPrint(
-          'Drag accepted with details: ${ref.watch(appBuilderStateNotifierProvider).theJson}',
-        );
       },
     );
   }

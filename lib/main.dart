@@ -4,6 +4,8 @@ import 'package:ezy_appbuilder/features/appbuilder/presentation/screens/app_buil
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   runApp(ProviderScope(child: const EzyCourseAppBuilder()));
 }
@@ -14,6 +16,7 @@ class EzyCourseAppBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: AppConstants.appName,
       theme: AppTheme.lightTheme,
