@@ -10,10 +10,13 @@ class CanvasViewport extends StatelessWidget {
     super.key,
     required this.screenMap,
     required this.onDragAccept,
+    this.onWidgetSelected,
   });
 
   final Map<String, dynamic> screenMap;
   final void Function(DragTargetDetails<WidgetInfo>) onDragAccept;
+  final void Function(String widgetId, Map<String, dynamic> properties)?
+  onWidgetSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +31,22 @@ class CanvasViewport extends StatelessWidget {
             onAcceptWithDetails: onDragAccept,
             onWillAcceptWithDetails: (details) => true,
             builder: (context, candidateData, rejectedData) {
-              return SizedBox(
+              final isDraggedOver = candidateData.isNotEmpty;
+              return Container(
                 width: AppConstants.canvasWidth,
                 height: AppConstants.canvasHeight,
+                decoration: BoxDecoration(
+                  border: isDraggedOver
+                      ? Border.all(
+                          color: Colors.blue.withValues(alpha: 0.5),
+                          width: 3,
+                          strokeAlign: BorderSide.strokeAlignInside,
+                        )
+                      : null,
+                  color: isDraggedOver
+                      ? Colors.blue.withValues(alpha: 0.05)
+                      : null,
+                ),
                 child: _buildCanvasContent(),
               );
             },
@@ -44,7 +60,32 @@ class CanvasViewport extends StatelessWidget {
     if (screenMap.isEmpty) {
       return EmptyCanvas();
     } else {
-      return JsonUIBuilder().buildFromJson(screenMap);
+      final builder = JsonUIBuilder();
+      final widget = builder.buildFromJson(screenMap);
+
+      // Wrap the widget with gesture detection for selection
+      if (onWidgetSelected != null) {
+        return _wrapWithSelectionGestures(widget, screenMap);
+      }
+
+      return widget;
     }
+  }
+
+  Widget _wrapWithSelectionGestures(
+    Widget widget,
+    Map<String, dynamic> config,
+  ) {
+    // This is a simplified version - in practice, you'd need to recursively
+    // wrap each widget with GestureDetector to make them individually selectable
+    return GestureDetector(
+      onTap: () {
+        // Generate widget ID similar to the hierarchy tree
+        final widgetId = '${config['id']}';
+        final properties = config['properties'] as Map<String, dynamic>? ?? {};
+        onWidgetSelected?.call(widgetId, properties);
+      },
+      child: widget,
+    );
   }
 }

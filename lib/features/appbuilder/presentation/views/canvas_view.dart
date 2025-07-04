@@ -27,12 +27,12 @@ class CanvasView extends ConsumerWidget {
   Widget _buildCanvasContent(WidgetRef ref) {
     return CanvasViewport(
       screenMap: ref.watch(appBuilderStateNotifierProvider).theJson,
-      onDragAccept: (details) {
-        ref
-            .read(appBuilderStateNotifierProvider.notifier)
-            .addWidgetToCanvas(details.data.name);
-        debugPrint('Drag accepted with details: ${details.data}');
-      },
+      onDragAccept: (details) => ref
+          .read(appBuilderStateNotifierProvider.notifier)
+          .addWidgetToCanvas(details.data.name),
+      onWidgetSelected: (widgetId, properties) => ref
+          .read(appBuilderStateNotifierProvider.notifier)
+          .selectWidget(widgetId, properties),
     );
   }
 }

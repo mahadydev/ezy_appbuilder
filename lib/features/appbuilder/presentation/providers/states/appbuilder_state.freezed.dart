@@ -14,7 +14,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AppbuilderState {
 
- bool get isCanvasLoading; bool get showPreview; Map<String, dynamic> get theJson;
+ bool get isCanvasLoading; bool get showPreview; Map<String, dynamic> get theJson; String? get selectedWidgetId;// ID of currently selected widget
+ Map<String, dynamic> get selectedWidgetProperties;
 /// Create a copy of AppbuilderState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +26,16 @@ $AppbuilderStateCopyWith<AppbuilderState> get copyWith => _$AppbuilderStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppbuilderState&&(identical(other.isCanvasLoading, isCanvasLoading) || other.isCanvasLoading == isCanvasLoading)&&(identical(other.showPreview, showPreview) || other.showPreview == showPreview)&&const DeepCollectionEquality().equals(other.theJson, theJson));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppbuilderState&&(identical(other.isCanvasLoading, isCanvasLoading) || other.isCanvasLoading == isCanvasLoading)&&(identical(other.showPreview, showPreview) || other.showPreview == showPreview)&&const DeepCollectionEquality().equals(other.theJson, theJson)&&(identical(other.selectedWidgetId, selectedWidgetId) || other.selectedWidgetId == selectedWidgetId)&&const DeepCollectionEquality().equals(other.selectedWidgetProperties, selectedWidgetProperties));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isCanvasLoading,showPreview,const DeepCollectionEquality().hash(theJson));
+int get hashCode => Object.hash(runtimeType,isCanvasLoading,showPreview,const DeepCollectionEquality().hash(theJson),selectedWidgetId,const DeepCollectionEquality().hash(selectedWidgetProperties));
 
 @override
 String toString() {
-  return 'AppbuilderState(isCanvasLoading: $isCanvasLoading, showPreview: $showPreview, theJson: $theJson)';
+  return 'AppbuilderState(isCanvasLoading: $isCanvasLoading, showPreview: $showPreview, theJson: $theJson, selectedWidgetId: $selectedWidgetId, selectedWidgetProperties: $selectedWidgetProperties)';
 }
 
 
@@ -45,7 +46,7 @@ abstract mixin class $AppbuilderStateCopyWith<$Res>  {
   factory $AppbuilderStateCopyWith(AppbuilderState value, $Res Function(AppbuilderState) _then) = _$AppbuilderStateCopyWithImpl;
 @useResult
 $Res call({
- bool isCanvasLoading, bool showPreview, Map<String, dynamic> theJson
+ bool isCanvasLoading, bool showPreview, Map<String, dynamic> theJson, String? selectedWidgetId, Map<String, dynamic> selectedWidgetProperties
 });
 
 
@@ -62,11 +63,13 @@ class _$AppbuilderStateCopyWithImpl<$Res>
 
 /// Create a copy of AppbuilderState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isCanvasLoading = null,Object? showPreview = null,Object? theJson = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isCanvasLoading = null,Object? showPreview = null,Object? theJson = null,Object? selectedWidgetId = freezed,Object? selectedWidgetProperties = null,}) {
   return _then(_self.copyWith(
 isCanvasLoading: null == isCanvasLoading ? _self.isCanvasLoading : isCanvasLoading // ignore: cast_nullable_to_non_nullable
 as bool,showPreview: null == showPreview ? _self.showPreview : showPreview // ignore: cast_nullable_to_non_nullable
 as bool,theJson: null == theJson ? _self.theJson : theJson // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,selectedWidgetId: freezed == selectedWidgetId ? _self.selectedWidgetId : selectedWidgetId // ignore: cast_nullable_to_non_nullable
+as String?,selectedWidgetProperties: null == selectedWidgetProperties ? _self.selectedWidgetProperties : selectedWidgetProperties // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,
   ));
 }
@@ -149,10 +152,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isCanvasLoading,  bool showPreview,  Map<String, dynamic> theJson)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isCanvasLoading,  bool showPreview,  Map<String, dynamic> theJson,  String? selectedWidgetId,  Map<String, dynamic> selectedWidgetProperties)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppbuilderState() when $default != null:
-return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson);case _:
+return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson,_that.selectedWidgetId,_that.selectedWidgetProperties);case _:
   return orElse();
 
 }
@@ -170,10 +173,10 @@ return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isCanvasLoading,  bool showPreview,  Map<String, dynamic> theJson)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isCanvasLoading,  bool showPreview,  Map<String, dynamic> theJson,  String? selectedWidgetId,  Map<String, dynamic> selectedWidgetProperties)  $default,) {final _that = this;
 switch (_that) {
 case _AppbuilderState():
-return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson);}
+return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson,_that.selectedWidgetId,_that.selectedWidgetProperties);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -187,10 +190,10 @@ return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isCanvasLoading,  bool showPreview,  Map<String, dynamic> theJson)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isCanvasLoading,  bool showPreview,  Map<String, dynamic> theJson,  String? selectedWidgetId,  Map<String, dynamic> selectedWidgetProperties)?  $default,) {final _that = this;
 switch (_that) {
 case _AppbuilderState() when $default != null:
-return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson);case _:
+return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson,_that.selectedWidgetId,_that.selectedWidgetProperties);case _:
   return null;
 
 }
@@ -202,7 +205,7 @@ return $default(_that.isCanvasLoading,_that.showPreview,_that.theJson);case _:
 
 
 class _AppbuilderState implements AppbuilderState {
-  const _AppbuilderState({this.isCanvasLoading = false, this.showPreview = false, final  Map<String, dynamic> theJson = const {}}): _theJson = theJson;
+  const _AppbuilderState({this.isCanvasLoading = false, this.showPreview = false, final  Map<String, dynamic> theJson = const {}, this.selectedWidgetId, final  Map<String, dynamic> selectedWidgetProperties = const {}}): _theJson = theJson,_selectedWidgetProperties = selectedWidgetProperties;
   
 
 @override@JsonKey() final  bool isCanvasLoading;
@@ -212,6 +215,16 @@ class _AppbuilderState implements AppbuilderState {
   if (_theJson is EqualUnmodifiableMapView) return _theJson;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_theJson);
+}
+
+@override final  String? selectedWidgetId;
+// ID of currently selected widget
+ final  Map<String, dynamic> _selectedWidgetProperties;
+// ID of currently selected widget
+@override@JsonKey() Map<String, dynamic> get selectedWidgetProperties {
+  if (_selectedWidgetProperties is EqualUnmodifiableMapView) return _selectedWidgetProperties;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_selectedWidgetProperties);
 }
 
 
@@ -225,16 +238,16 @@ _$AppbuilderStateCopyWith<_AppbuilderState> get copyWith => __$AppbuilderStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppbuilderState&&(identical(other.isCanvasLoading, isCanvasLoading) || other.isCanvasLoading == isCanvasLoading)&&(identical(other.showPreview, showPreview) || other.showPreview == showPreview)&&const DeepCollectionEquality().equals(other._theJson, _theJson));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppbuilderState&&(identical(other.isCanvasLoading, isCanvasLoading) || other.isCanvasLoading == isCanvasLoading)&&(identical(other.showPreview, showPreview) || other.showPreview == showPreview)&&const DeepCollectionEquality().equals(other._theJson, _theJson)&&(identical(other.selectedWidgetId, selectedWidgetId) || other.selectedWidgetId == selectedWidgetId)&&const DeepCollectionEquality().equals(other._selectedWidgetProperties, _selectedWidgetProperties));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isCanvasLoading,showPreview,const DeepCollectionEquality().hash(_theJson));
+int get hashCode => Object.hash(runtimeType,isCanvasLoading,showPreview,const DeepCollectionEquality().hash(_theJson),selectedWidgetId,const DeepCollectionEquality().hash(_selectedWidgetProperties));
 
 @override
 String toString() {
-  return 'AppbuilderState(isCanvasLoading: $isCanvasLoading, showPreview: $showPreview, theJson: $theJson)';
+  return 'AppbuilderState(isCanvasLoading: $isCanvasLoading, showPreview: $showPreview, theJson: $theJson, selectedWidgetId: $selectedWidgetId, selectedWidgetProperties: $selectedWidgetProperties)';
 }
 
 
@@ -245,7 +258,7 @@ abstract mixin class _$AppbuilderStateCopyWith<$Res> implements $AppbuilderState
   factory _$AppbuilderStateCopyWith(_AppbuilderState value, $Res Function(_AppbuilderState) _then) = __$AppbuilderStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isCanvasLoading, bool showPreview, Map<String, dynamic> theJson
+ bool isCanvasLoading, bool showPreview, Map<String, dynamic> theJson, String? selectedWidgetId, Map<String, dynamic> selectedWidgetProperties
 });
 
 
@@ -262,11 +275,13 @@ class __$AppbuilderStateCopyWithImpl<$Res>
 
 /// Create a copy of AppbuilderState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isCanvasLoading = null,Object? showPreview = null,Object? theJson = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isCanvasLoading = null,Object? showPreview = null,Object? theJson = null,Object? selectedWidgetId = freezed,Object? selectedWidgetProperties = null,}) {
   return _then(_AppbuilderState(
 isCanvasLoading: null == isCanvasLoading ? _self.isCanvasLoading : isCanvasLoading // ignore: cast_nullable_to_non_nullable
 as bool,showPreview: null == showPreview ? _self.showPreview : showPreview // ignore: cast_nullable_to_non_nullable
 as bool,theJson: null == theJson ? _self._theJson : theJson // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,selectedWidgetId: freezed == selectedWidgetId ? _self.selectedWidgetId : selectedWidgetId // ignore: cast_nullable_to_non_nullable
+as String?,selectedWidgetProperties: null == selectedWidgetProperties ? _self._selectedWidgetProperties : selectedWidgetProperties // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,
   ));
 }
