@@ -88,6 +88,8 @@ class _PropertyFormState extends State<PropertyForm> {
       case 'subtitle':
       case 'hintText':
       case 'labelText':
+      case 'icon':
+      case 'src':
         return _buildStringField(key, value as String? ?? '');
 
       case 'width':
@@ -96,17 +98,48 @@ class _PropertyFormState extends State<PropertyForm> {
       case 'margin':
       case 'fontSize':
       case 'borderRadius':
+      case 'elevation':
+      case 'size':
+      case 'top':
+      case 'bottom':
+      case 'left':
+      case 'right':
+      case 'flex':
+      case 'min':
+      case 'max':
+      case 'divisions':
+      case 'widthFactor':
+      case 'heightFactor':
         return _buildNumberField(key, value as num? ?? 0);
 
       case 'color':
       case 'backgroundColor':
       case 'borderColor':
+      case 'activeColor':
+      case 'inactiveThumbColor':
+      case 'foregroundColor':
         return _buildColorField(key, value as String? ?? '');
 
       case 'visible':
       case 'enabled':
       case 'expanded':
+      case 'obscureText':
+      case 'centerTitle':
+      case 'mini':
         return _buildBooleanField(key, value as bool? ?? true);
+
+      case 'value':
+        // Handle different types of values for different widgets
+        if (widget.widgetType == 'Checkbox' || widget.widgetType == 'Switch') {
+          return _buildBooleanField(key, value as bool? ?? false);
+        } else if (widget.widgetType == 'Slider') {
+          return _buildNumberField(key, value as num? ?? 0);
+        } else {
+          return _buildStringField(key, value as String? ?? '');
+        }
+
+      case 'groupValue':
+        return _buildStringField(key, value as String? ?? '');
 
       case 'alignment':
         return _buildAlignmentField(key, value as String? ?? 'center');
@@ -116,6 +149,28 @@ class _PropertyFormState extends State<PropertyForm> {
 
       case 'mainAxisAlignment':
         return _buildMainAxisAlignmentField(key, value as String? ?? 'start');
+
+      case 'textAlign':
+        return _buildTextAlignField(key, value as String? ?? 'left');
+
+      case 'overflow':
+        return _buildTextOverflowField(key, value as String? ?? 'clip');
+
+      case 'fontWeight':
+        return _buildFontWeightField(key, value as String? ?? 'normal');
+
+      case 'fit':
+        if (widget.widgetType == 'Image') {
+          return _buildBoxFitField(key, value as String? ?? 'cover');
+        } else {
+          return _buildFlexFitField(key, value as String? ?? 'loose');
+        }
+
+      case 'mainAxisSize':
+        return _buildMainAxisSizeField(key, value as String? ?? 'max');
+
+      case 'maxLines':
+        return _buildNumberField(key, value as num? ?? 1);
 
       default:
         if (value is String) {
@@ -343,6 +398,211 @@ class _PropertyFormState extends State<PropertyForm> {
     );
   }
 
+  Widget _buildTextAlignField(String key, String value) {
+    const alignments = ['left', 'center', 'right', 'justify', 'start', 'end'];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_formatPropertyName(key), style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: AppConstants.spacingS),
+          DropdownButtonFormField<String>(
+            value: alignments.contains(value) ? value : 'left',
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingM,
+                vertical: AppConstants.spacingS,
+              ),
+            ),
+            items: alignments
+                .map(
+                  (alignment) => DropdownMenuItem(
+                    value: alignment,
+                    child: Text(alignment),
+                  ),
+                )
+                .toList(),
+            onChanged: (newValue) => _updateProperty(key, newValue ?? 'left'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextOverflowField(String key, String value) {
+    const overflows = ['clip', 'fade', 'ellipsis', 'visible'];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_formatPropertyName(key), style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: AppConstants.spacingS),
+          DropdownButtonFormField<String>(
+            value: overflows.contains(value) ? value : 'clip',
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingM,
+                vertical: AppConstants.spacingS,
+              ),
+            ),
+            items: overflows
+                .map(
+                  (overflow) =>
+                      DropdownMenuItem(value: overflow, child: Text(overflow)),
+                )
+                .toList(),
+            onChanged: (newValue) => _updateProperty(key, newValue ?? 'clip'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFontWeightField(String key, String value) {
+    const weights = [
+      'normal',
+      'bold',
+      'w100',
+      'w200',
+      'w300',
+      'w400',
+      'w500',
+      'w600',
+      'w700',
+      'w800',
+      'w900',
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_formatPropertyName(key), style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: AppConstants.spacingS),
+          DropdownButtonFormField<String>(
+            value: weights.contains(value) ? value : 'normal',
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingM,
+                vertical: AppConstants.spacingS,
+              ),
+            ),
+            items: weights
+                .map(
+                  (weight) =>
+                      DropdownMenuItem(value: weight, child: Text(weight)),
+                )
+                .toList(),
+            onChanged: (newValue) => _updateProperty(key, newValue ?? 'normal'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBoxFitField(String key, String value) {
+    const fits = [
+      'fill',
+      'contain',
+      'cover',
+      'fitWidth',
+      'fitHeight',
+      'none',
+      'scaleDown',
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_formatPropertyName(key), style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: AppConstants.spacingS),
+          DropdownButtonFormField<String>(
+            value: fits.contains(value) ? value : 'cover',
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingM,
+                vertical: AppConstants.spacingS,
+              ),
+            ),
+            items: fits
+                .map((fit) => DropdownMenuItem(value: fit, child: Text(fit)))
+                .toList(),
+            onChanged: (newValue) => _updateProperty(key, newValue ?? 'cover'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlexFitField(String key, String value) {
+    const fits = ['tight', 'loose'];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_formatPropertyName(key), style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: AppConstants.spacingS),
+          DropdownButtonFormField<String>(
+            value: fits.contains(value) ? value : 'loose',
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingM,
+                vertical: AppConstants.spacingS,
+              ),
+            ),
+            items: fits
+                .map((fit) => DropdownMenuItem(value: fit, child: Text(fit)))
+                .toList(),
+            onChanged: (newValue) => _updateProperty(key, newValue ?? 'loose'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainAxisSizeField(String key, String value) {
+    const sizes = ['min', 'max'];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppConstants.spacingS),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_formatPropertyName(key), style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: AppConstants.spacingS),
+          DropdownButtonFormField<String>(
+            value: sizes.contains(value) ? value : 'max',
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppConstants.spacingM,
+                vertical: AppConstants.spacingS,
+              ),
+            ),
+            items: sizes
+                .map((size) => DropdownMenuItem(value: size, child: Text(size)))
+                .toList(),
+            onChanged: (newValue) => _updateProperty(key, newValue ?? 'max'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Color _parseColor(String colorString) {
     try {
       if (colorString.isEmpty) return Colors.blue;
@@ -394,20 +654,76 @@ class _PropertyFormState extends State<PropertyForm> {
     // Define properties that are relevant for different widget types
     switch (widget.widgetType) {
       case 'Text':
-        return ['data', 'fontSize', 'color'];
+        return [
+          'data',
+          'fontSize',
+          'color',
+          'fontWeight',
+          'textAlign',
+          'overflow',
+        ];
       case 'Container':
-        return ['width', 'height', 'color', 'padding', 'margin'];
+        return [
+          'width',
+          'height',
+          'color',
+          'padding',
+          'margin',
+          'borderRadius',
+          'alignment',
+        ];
       case 'Column':
       case 'Row':
-        return ['mainAxisAlignment', 'crossAxisAlignment', 'padding'];
+        return [
+          'mainAxisAlignment',
+          'crossAxisAlignment',
+          'padding',
+          'mainAxisSize',
+        ];
       case 'AppBar':
-        return ['title', 'backgroundColor'];
+        return ['title', 'backgroundColor', 'elevation', 'centerTitle'];
       case 'ElevatedButton':
       case 'TextButton':
       case 'OutlinedButton':
-        return ['text', 'color'];
+        return ['text', 'color', 'backgroundColor', 'elevation', 'padding'];
       case 'TextField':
-        return ['hintText', 'labelText'];
+      case 'TextFormField':
+        return ['hintText', 'labelText', 'maxLines', 'obscureText', 'enabled'];
+      case 'Icon':
+        return ['icon', 'size', 'color'];
+      case 'Image':
+        return ['src', 'width', 'height', 'fit'];
+      case 'Card':
+        return ['elevation', 'margin', 'color', 'borderRadius'];
+      case 'ListTile':
+        return ['title', 'subtitle', 'leading', 'trailing'];
+      case 'Scaffold':
+        return ['backgroundColor', 'appBar', 'body', 'floatingActionButton'];
+      case 'Stack':
+        return ['alignment', 'fit'];
+      case 'Positioned':
+        return ['top', 'bottom', 'left', 'right', 'width', 'height'];
+      case 'Expanded':
+      case 'Flexible':
+        return ['flex', 'fit'];
+      case 'Padding':
+        return ['padding'];
+      case 'SizedBox':
+        return ['width', 'height'];
+      case 'Center':
+        return ['widthFactor', 'heightFactor'];
+      case 'Align':
+        return ['alignment', 'widthFactor', 'heightFactor'];
+      case 'Checkbox':
+        return ['value', 'activeColor'];
+      case 'Switch':
+        return ['value', 'activeColor', 'inactiveThumbColor'];
+      case 'Radio':
+        return ['value', 'groupValue', 'activeColor'];
+      case 'Slider':
+        return ['value', 'min', 'max', 'divisions', 'activeColor'];
+      case 'FloatingActionButton':
+        return ['backgroundColor', 'foregroundColor', 'elevation', 'mini'];
       default:
         return _currentProperties.keys.toList();
     }
@@ -474,6 +790,29 @@ class _PropertyFormState extends State<PropertyForm> {
             onPressed: () => _addCustomProperty(),
             child: const Text('Add Custom Property'),
           ),
+          const SizedBox(height: AppConstants.spacingM),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    widget.onPropertiesChanged(_currentProperties);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Properties saved successfully!'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Save Properties'),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -483,6 +822,10 @@ class _PropertyFormState extends State<PropertyForm> {
     const commonProperties = [
       'data',
       'text',
+      'title',
+      'subtitle',
+      'hintText',
+      'labelText',
       'width',
       'height',
       'color',
@@ -492,6 +835,30 @@ class _PropertyFormState extends State<PropertyForm> {
       'alignment',
       'visible',
       'enabled',
+      'fontSize',
+      'borderRadius',
+      'elevation',
+      'mainAxisAlignment',
+      'crossAxisAlignment',
+      'textAlign',
+      'overflow',
+      'fontWeight',
+      'icon',
+      'src',
+      'size',
+      'fit',
+      'value',
+      'min',
+      'max',
+      'flex',
+      'maxLines',
+      'obscureText',
+      'centerTitle',
+      'mini',
+      'activeColor',
+      'foregroundColor',
+      'mainAxisSize',
+      'groupValue',
     ];
     return commonProperties.contains(property);
   }
@@ -505,26 +872,77 @@ class _PropertyFormState extends State<PropertyForm> {
         return 'Text';
       case 'hintText':
         return 'Enter text';
+      case 'labelText':
+        return 'Label';
+      case 'icon':
+        return 'star';
+      case 'src':
+        return 'https://via.placeholder.com/150';
       case 'width':
       case 'height':
         return 100.0;
       case 'fontSize':
         return 16.0;
+      case 'size':
+        return 24.0;
       case 'padding':
       case 'margin':
         return 8.0;
+      case 'elevation':
+        return 4.0;
+      case 'borderRadius':
+        return 8.0;
+      case 'flex':
+        return 1;
+      case 'maxLines':
+        return 1;
+      case 'top':
+      case 'bottom':
+      case 'left':
+      case 'right':
+        return 0.0;
+      case 'min':
+        return 0.0;
+      case 'max':
+        return 1.0;
+      case 'value':
+        return 0.5;
+      case 'divisions':
+        return 10;
+      case 'widthFactor':
+      case 'heightFactor':
+        return 1.0;
       case 'color':
       case 'backgroundColor':
+      case 'activeColor':
+      case 'inactiveThumbColor':
+      case 'foregroundColor':
         return 'blue';
       case 'visible':
       case 'enabled':
+      case 'centerTitle':
+      case 'mini':
         return true;
+      case 'obscureText':
+        return false;
       case 'alignment':
         return 'center';
       case 'mainAxisAlignment':
         return 'start';
       case 'crossAxisAlignment':
         return 'center';
+      case 'textAlign':
+        return 'left';
+      case 'overflow':
+        return 'clip';
+      case 'fontWeight':
+        return 'normal';
+      case 'fit':
+        return 'cover';
+      case 'mainAxisSize':
+        return 'max';
+      case 'groupValue':
+        return 'option1';
       default:
         return '';
     }

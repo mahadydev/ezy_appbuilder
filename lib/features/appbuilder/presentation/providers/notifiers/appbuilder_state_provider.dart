@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:ezy_appbuilder/core/utils/toast.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/providers/states/appbuilder_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:json_ui_builder/json_ui_builder.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'appbuilder_state_provider.g.dart';
 
@@ -159,7 +162,8 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
 
   /// Generate a unique ID for a widget based on its type and position
   String _generateWidgetId(WidgetConfig config) {
-    return '${config.type}_${config.hashCode}';
+    // Use a more consistent ID generation approach
+    return '${config.type}_${config.toJson().toString().hashCode.abs()}';
   }
 
   /// Delete a widget from the tree
@@ -232,6 +236,7 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
           break;
         case 'AppBar':
           final appBarConfig = WidgetConfig(type: 'AppBar');
+          appBarConfig.properties['title'] = 'App Bar';
           final currentConfig = builder.jsonToConfig(state.theJson);
           if (currentConfig.type == 'Scaffold') {
             currentConfig.properties['appBar'] = appBarConfig.toJson();
@@ -240,9 +245,48 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
             );
           }
           break;
+        case 'FloatingActionButton':
+          final fabConfig = WidgetConfig(type: 'FloatingActionButton');
+          fabConfig.properties['backgroundColor'] = 'primary';
+          final currentConfig = builder.jsonToConfig(state.theJson);
+          if (currentConfig.type == 'Scaffold') {
+            currentConfig.properties['floatingActionButton'] = fabConfig
+                .toJson();
+            state = state.copyWith(
+              theJson: builder.configToJson(currentConfig),
+            );
+          }
+          break;
+        case 'Drawer':
+          final drawerConfig = WidgetConfig(type: 'Drawer');
+          final currentConfig = builder.jsonToConfig(state.theJson);
+          if (currentConfig.type == 'Scaffold') {
+            currentConfig.properties['drawer'] = drawerConfig.toJson();
+            state = state.copyWith(
+              theJson: builder.configToJson(currentConfig),
+            );
+          }
+          break;
+        case 'BottomNavigationBar':
+          final bottomNavConfig = WidgetConfig(type: 'BottomNavigationBar');
+          final currentConfig = builder.jsonToConfig(state.theJson);
+          if (currentConfig.type == 'Scaffold') {
+            currentConfig.properties['bottomNavigationBar'] = bottomNavConfig
+                .toJson();
+            state = state.copyWith(
+              theJson: builder.configToJson(currentConfig),
+            );
+          }
+          break;
         case 'Column':
         case 'Row':
+        case 'Stack':
+        case 'Wrap':
+        case 'ListView':
+        case 'GridView':
           final layoutConfig = WidgetConfig(type: widgetType);
+          layoutConfig.properties['mainAxisAlignment'] = 'start';
+          layoutConfig.properties['crossAxisAlignment'] = 'center';
           final currentConfig = builder.jsonToConfig(state.theJson);
           if (currentConfig.type == 'Scaffold' && currentConfig.child == null) {
             currentConfig.child = layoutConfig;
@@ -275,19 +319,89 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     switch (widgetType) {
       case 'Text':
         newWidgetConfig.properties['text'] = 'Hello World';
+        newWidgetConfig.properties['fontSize'] = 16.0;
+        newWidgetConfig.properties['color'] = 'black';
         break;
       case 'Container':
         newWidgetConfig.properties['width'] = 100.0;
         newWidgetConfig.properties['height'] = 100.0;
         newWidgetConfig.properties['color'] = 'blue';
+        newWidgetConfig.properties['padding'] = 8.0;
         break;
       case 'ElevatedButton':
       case 'TextButton':
       case 'OutlinedButton':
         newWidgetConfig.properties['text'] = 'Button';
+        newWidgetConfig.properties['color'] = 'primary';
         break;
       case 'TextField':
+      case 'TextFormField':
         newWidgetConfig.properties['hintText'] = 'Enter text';
+        newWidgetConfig.properties['labelText'] = 'Label';
+        break;
+      case 'Icon':
+        newWidgetConfig.properties['icon'] = 'star';
+        newWidgetConfig.properties['size'] = 24.0;
+        newWidgetConfig.properties['color'] = 'black';
+        break;
+      case 'Image':
+        newWidgetConfig.properties['src'] = 'https://via.placeholder.com/150';
+        newWidgetConfig.properties['width'] = 150.0;
+        newWidgetConfig.properties['height'] = 150.0;
+        break;
+      case 'Card':
+        newWidgetConfig.properties['elevation'] = 4.0;
+        newWidgetConfig.properties['margin'] = 8.0;
+        break;
+      case 'ListTile':
+        newWidgetConfig.properties['title'] = 'List Item';
+        newWidgetConfig.properties['subtitle'] = 'Subtitle';
+        break;
+      case 'Checkbox':
+        newWidgetConfig.properties['value'] = false;
+        break;
+      case 'Switch':
+        newWidgetConfig.properties['value'] = false;
+        break;
+      case 'Radio':
+        newWidgetConfig.properties['value'] = 'option1';
+        newWidgetConfig.properties['groupValue'] = 'option1';
+        break;
+      case 'Slider':
+        newWidgetConfig.properties['value'] = 0.5;
+        newWidgetConfig.properties['min'] = 0.0;
+        newWidgetConfig.properties['max'] = 1.0;
+        break;
+      case 'FloatingActionButton':
+        newWidgetConfig.properties['backgroundColor'] = 'primary';
+        newWidgetConfig.properties['foregroundColor'] = 'white';
+        break;
+      case 'AppBar':
+        newWidgetConfig.properties['title'] = 'App Bar';
+        newWidgetConfig.properties['backgroundColor'] = 'primary';
+        break;
+      case 'Column':
+      case 'Row':
+        newWidgetConfig.properties['mainAxisAlignment'] = 'start';
+        newWidgetConfig.properties['crossAxisAlignment'] = 'center';
+        break;
+      case 'Stack':
+        newWidgetConfig.properties['alignment'] = 'center';
+        break;
+      case 'Positioned':
+        newWidgetConfig.properties['top'] = 0.0;
+        newWidgetConfig.properties['left'] = 0.0;
+        break;
+      case 'Expanded':
+      case 'Flexible':
+        newWidgetConfig.properties['flex'] = 1;
+        break;
+      case 'Padding':
+        newWidgetConfig.properties['padding'] = 8.0;
+        break;
+      case 'SizedBox':
+        newWidgetConfig.properties['width'] = 100.0;
+        newWidgetConfig.properties['height'] = 100.0;
         break;
     }
 
@@ -303,15 +417,33 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     WidgetConfig parentConfig,
     WidgetConfig newWidget,
   ) {
-    // If parent is a Column or Row, add to children
-    if (parentConfig.type == 'Column' || parentConfig.type == 'Row') {
+    // If parent is a Column, Row, Wrap, ListView, or GridView, add to children
+    if ([
+      'Column',
+      'Row',
+      'Wrap',
+      'ListView',
+      'GridView',
+      'Stack',
+    ].contains(parentConfig.type)) {
       parentConfig.children ??= [];
       parentConfig.children!.add(newWidget);
       return true;
     }
 
-    // If parent is a Container or Center and has no child, set as child
-    if ((parentConfig.type == 'Container' || parentConfig.type == 'Center') &&
+    // If parent is a Container, Center, Align, Card, Padding, or SizedBox and has no child, set as child
+    if ([
+          'Container',
+          'Center',
+          'Align',
+          'Card',
+          'Padding',
+          'SizedBox',
+          'Expanded',
+          'Flexible',
+          'SingleChildScrollView',
+          'PageView',
+        ].contains(parentConfig.type) &&
         parentConfig.child == null) {
       parentConfig.child = newWidget;
       return true;
@@ -320,6 +452,22 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     // If parent is Scaffold and we're adding to body
     if (parentConfig.type == 'Scaffold' && parentConfig.child == null) {
       parentConfig.child = newWidget;
+      return true;
+    }
+
+    // If parent is Stack, add to children with positioning
+    if (parentConfig.type == 'Stack') {
+      parentConfig.children ??= [];
+      // Wrap non-positioned widgets in Positioned
+      if (newWidget.type != 'Positioned') {
+        final positionedWrapper = WidgetConfig(type: 'Positioned');
+        positionedWrapper.properties['top'] = 0.0;
+        positionedWrapper.properties['left'] = 0.0;
+        positionedWrapper.child = newWidget;
+        parentConfig.children!.add(positionedWrapper);
+      } else {
+        parentConfig.children!.add(newWidget);
+      }
       return true;
     }
 
@@ -339,5 +487,98 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     }
 
     return false;
+  }
+
+  /// Save current project to local storage
+  Future<void> saveProject(String projectName) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final projectData = {
+        'name': projectName,
+        'json': state.theJson,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+      await prefs.setString('project_$projectName', jsonEncode(projectData));
+      Toast.success('Project saved successfully');
+    } catch (e) {
+      Toast.error('Failed to save project: $e');
+    }
+  }
+
+  /// Load project from local storage
+  Future<void> loadProject(String projectName) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final projectDataString = prefs.getString('project_$projectName');
+
+      if (projectDataString != null) {
+        final projectData = jsonDecode(projectDataString);
+        final json = Map<String, dynamic>.from(projectData['json']);
+
+        _saveToHistory(); // Save current state before loading
+
+        state = state.copyWith(
+          theJson: json,
+          selectedWidgetId: null,
+          selectedWidgetProperties: {},
+        );
+
+        Toast.success('Project loaded successfully');
+      } else {
+        Toast.error('Project not found');
+      }
+    } catch (e) {
+      Toast.error('Failed to load project: $e');
+    }
+  }
+
+  /// Get list of saved projects
+  Future<List<String>> getSavedProjects() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final keys = prefs.getKeys();
+      final projectKeys = keys
+          .where((key) => key.startsWith('project_'))
+          .toList();
+      return projectKeys
+          .map((key) => key.substring(8))
+          .toList(); // Remove 'project_' prefix
+    } catch (e) {
+      Toast.error('Failed to get saved projects: $e');
+      return [];
+    }
+  }
+
+  /// Delete a saved project
+  Future<void> deleteProject(String projectName) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('project_$projectName');
+      Toast.success('Project deleted successfully');
+    } catch (e) {
+      Toast.error('Failed to delete project: $e');
+    }
+  }
+
+  /// Import JSON from external source
+  void importJson(Map<String, dynamic> json) {
+    try {
+      _saveToHistory(); // Save current state before importing
+
+      state = state.copyWith(
+        theJson: json,
+        selectedWidgetId: null,
+        selectedWidgetProperties: {},
+      );
+
+      Toast.success('JSON imported successfully');
+    } catch (e) {
+      Toast.error('Failed to import JSON: $e');
+    }
+  }
+
+  /// Export current JSON
+  Map<String, dynamic> exportJson() {
+    return Map<String, dynamic>.from(state.theJson);
   }
 }

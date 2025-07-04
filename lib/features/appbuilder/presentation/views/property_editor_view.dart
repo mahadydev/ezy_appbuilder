@@ -96,15 +96,55 @@ class PropertyEditorView extends ConsumerWidget {
   Map<String, dynamic> _getDefaultProperties(String widgetType) {
     switch (widgetType) {
       case 'Text':
-        return {'text': 'Hello World'};
+        return {
+          'data': 'Hello World',
+          'fontSize': 16.0,
+          'color': 'black',
+          'textAlign': 'left',
+        };
       case 'Container':
-        return {'width': 100.0, 'height': 100.0, 'color': 'blue'};
+        return {
+          'width': 100.0,
+          'height': 100.0,
+          'color': 'blue',
+          'padding': 8.0,
+          'margin': 8.0,
+        };
       case 'ElevatedButton':
       case 'TextButton':
       case 'OutlinedButton':
-        return {'text': 'Button'};
+        return {'text': 'Button', 'color': 'primary'};
       case 'TextField':
-        return {'hintText': 'Enter text'};
+      case 'TextFormField':
+        return {'hintText': 'Enter text', 'labelText': 'Label'};
+      case 'Icon':
+        return {'icon': 'star', 'size': 24.0, 'color': 'black'};
+      case 'Image':
+        return {
+          'src': 'https://via.placeholder.com/150',
+          'width': 150.0,
+          'height': 150.0,
+          'fit': 'cover',
+        };
+      case 'Card':
+        return {'elevation': 4.0, 'margin': 8.0};
+      case 'ListTile':
+        return {'title': 'List Item', 'subtitle': 'Subtitle'};
+      case 'AppBar':
+        return {'title': 'App Bar', 'backgroundColor': 'primary'};
+      case 'Column':
+      case 'Row':
+        return {'mainAxisAlignment': 'start', 'crossAxisAlignment': 'center'};
+      case 'Checkbox':
+        return {'value': false};
+      case 'Switch':
+        return {'value': false};
+      case 'Radio':
+        return {'value': 'option1', 'groupValue': 'option1'};
+      case 'Slider':
+        return {'value': 0.5, 'min': 0.0, 'max': 1.0};
+      case 'FloatingActionButton':
+        return {'backgroundColor': 'primary', 'foregroundColor': 'white'};
       default:
         return {};
     }

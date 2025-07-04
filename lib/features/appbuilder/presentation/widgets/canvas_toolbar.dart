@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:ezy_appbuilder/core/constants/app_constants.dart';
 import 'package:ezy_appbuilder/core/theme/app_theme.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/providers/notifiers/appbuilder_state_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CanvasToolbar extends ConsumerWidget {
@@ -43,6 +46,15 @@ class CanvasToolbar extends ConsumerWidget {
             onPressed: () => notifier.resetJson(),
             icon: const Icon(Icons.clear_all),
             tooltip: 'Reset Canvas (Ctrl+R)',
+          ),
+
+          const SizedBox(width: AppConstants.spacingM),
+
+          // Export JSON button
+          IconButton(
+            onPressed: () => _showExportDialog(context, ref),
+            icon: const Icon(Icons.code),
+            tooltip: 'Export JSON',
           ),
 
           const Spacer(),
@@ -88,5 +100,65 @@ class CanvasToolbar extends ConsumerWidget {
     }
 
     return count;
+  }
+
+  void _showExportDialog(BuildContext context, WidgetRef ref) {
+    final json = ref.read(appBuilderStateNotifierProvider).theJson;
+    final prettyJson = const JsonEncoder.withIndent('  ').convert(json);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export JSON'),
+        content: SizedBox(
+          width: 360,
+          height: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Copy the JSON below to use in your application:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: AppConstants.spacingS),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SingleChildScrollView(
+                    child: SelectableText(
+                      prettyJson,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: prettyJson));
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('JSON copied to clipboard!')),
+              );
+            },
+            child: const Text('Copy to Clipboard'),
+          ),
+        ],
+      ),
+    );
   }
 }
