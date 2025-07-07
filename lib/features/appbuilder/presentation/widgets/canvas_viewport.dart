@@ -111,10 +111,7 @@ class CanvasViewport extends ConsumerWidget {
         'properties': {
           'decoration': {
             'type': 'BoxDecoration',
-            'border': {
-              'type': 'border',
-              'side': {'type': 'BorderSide', 'color': '#ff0000', 'width': 2},
-            },
+            'border': {'color': '0000ff', 'width': 3},
           },
         },
         'child': child,
