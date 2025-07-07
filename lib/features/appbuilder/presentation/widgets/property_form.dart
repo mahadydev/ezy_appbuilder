@@ -197,7 +197,7 @@ class _PropertyFormState extends State<PropertyForm> {
             vertical: AppConstants.spacingS,
           ),
         ),
-        onChanged: (newValue) => _updateProperty(key, newValue),
+        onFieldSubmitted: (newValue) => _updateProperty(key, newValue),
       ),
     );
   }
@@ -219,7 +219,7 @@ class _PropertyFormState extends State<PropertyForm> {
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
         ],
-        onChanged: (newValue) {
+        onFieldSubmitted: (newValue) {
           final parsed = double.tryParse(newValue);
           if (parsed != null) {
             _updateProperty(key, parsed);
@@ -245,7 +245,7 @@ class _PropertyFormState extends State<PropertyForm> {
                   vertical: AppConstants.spacingS,
                 ),
               ),
-              onChanged: (newValue) => _updateProperty(key, newValue),
+              onFieldSubmitted: (newValue) => _updateProperty(key, newValue),
             ),
           ),
           const SizedBox(width: AppConstants.spacingS),
