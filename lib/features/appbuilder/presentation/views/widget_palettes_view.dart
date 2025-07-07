@@ -220,16 +220,8 @@ class _WidgetPalettesViewState extends State<WidgetPalettesView> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.drag_indicator, color: AppTheme.textHintColor, size: 16),
-          const SizedBox(width: AppConstants.spacingS),
-          IconButton(
-            icon: Icon(Icons.add, color: AppTheme.primaryColor, size: 20),
-            onPressed: () {},
-            tooltip: 'Add ${widgetInfo.name}',
-            splashRadius: 20,
-          ),
         ],
       ),
-      onTap: () {},
     );
   }
 }

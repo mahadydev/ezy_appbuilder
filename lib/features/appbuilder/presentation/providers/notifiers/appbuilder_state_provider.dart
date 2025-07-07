@@ -134,7 +134,7 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     Map<String, dynamic> newProperties,
   ) {
     // Generate a unique ID for this widget if it doesn't exist
-    final currentId = _generateWidgetId(config);
+    final currentId = config.id;
 
     if (currentId == targetId) {
       config.properties.addAll(newProperties);
@@ -160,12 +160,6 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     return false;
   }
 
-  /// Generate a unique ID for a widget based on its type and position
-  String _generateWidgetId(WidgetConfig config) {
-    // Use a more consistent ID generation approach
-    return '${config.type}_${config.toJson().toString().hashCode.abs()}';
-  }
-
   /// Delete a widget from the tree
   void deleteWidget(String widgetId) {
     if (state.theJson.isEmpty) return;
@@ -189,8 +183,7 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
   bool _deleteWidgetInConfig(WidgetConfig config, String targetId) {
     // Check child
     if (config.child != null) {
-      final childId = _generateWidgetId(config.child!);
-      if (childId == targetId) {
+      if (config.child?.id == targetId) {
         config.child = null;
         return true;
       }
@@ -202,7 +195,7 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     // Check children
     if (config.children != null) {
       for (int i = 0; i < config.children!.length; i++) {
-        final childId = _generateWidgetId(config.children![i]);
+        final childId = config.children![i].id;
         if (childId == targetId) {
           config.children!.removeAt(i);
           return true;

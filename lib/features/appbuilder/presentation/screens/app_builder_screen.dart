@@ -75,9 +75,9 @@ class AppBuilderScreen extends ConsumerWidget {
           autofocus: true,
           child: Scaffold(
             appBar: AppBuilderAppBar(),
-            body: !appBuilderState.showPreview
-                ? _buildDesignMode()
-                : CanvasView(),
+            body: appBuilderState.showPreview
+                ? CanvasView()
+                : _buildDesignMode(),
           ),
         ),
       ),

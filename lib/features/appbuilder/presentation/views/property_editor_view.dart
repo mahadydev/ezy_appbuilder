@@ -96,12 +96,7 @@ class PropertyEditorView extends ConsumerWidget {
   Map<String, dynamic> _getDefaultProperties(String widgetType) {
     switch (widgetType) {
       case 'Text':
-        return {
-          'data': 'Hello World',
-          'fontSize': 16.0,
-          'color': 'black',
-          'textAlign': 'left',
-        };
+        return {'data': 'Hello World', 'fontSize': 16.0, 'color': 'black'};
       case 'Container':
         return {
           'width': 100.0,
@@ -253,7 +248,7 @@ class _HierarchyTree extends StatelessWidget {
     required this.onWidgetDeleted,
   });
 
-  String get _widgetId => '${config.type}_${config.hashCode}';
+  String get _widgetId => config.id;
 
   @override
   Widget build(BuildContext context) {
