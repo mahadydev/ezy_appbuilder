@@ -28,7 +28,7 @@ class CanvasViewport extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingXL),
         child: DeviceFrame(
-          device: Devices.ios.iPhone16ProMax,
+          device: Devices.ios.iPhone15ProMax,
           isFrameVisible: true,
           orientation: Orientation.portrait,
           screen: DragTarget<WidgetInfo>(
@@ -111,7 +111,7 @@ class CanvasViewport extends ConsumerWidget {
         'properties': {
           'decoration': {
             'type': 'BoxDecoration',
-            'border': {'color': '0000ff', 'width': 3},
+            'border': {'color': '#0000ff', 'width': 3},
           },
         },
         'child': child,

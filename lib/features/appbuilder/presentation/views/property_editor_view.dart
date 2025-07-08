@@ -1,5 +1,6 @@
 import 'package:ezy_appbuilder/core/constants/app_constants.dart';
 import 'package:ezy_appbuilder/core/theme/app_theme.dart';
+import 'package:ezy_appbuilder/features/appbuilder/data/models/widget_info.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/providers/notifiers/appbuilder_state_provider.dart';
 import 'package:ezy_appbuilder/features/appbuilder/presentation/widgets/property_form.dart';
 import 'package:ezy_appbuilder/shared/widgets/common_widgets.dart';
@@ -211,6 +212,14 @@ class PropertyEditorView extends ConsumerWidget {
                 return ListView(
                   children: [
                     _HierarchyTree(
+                      onWidgetDropped: (parentId, widgetInfo) {
+                        ref
+                            .read(appBuilderStateNotifierProvider.notifier)
+                            .addWidgetToParent(
+                              parentId,
+                              widgetInfo.name,
+                            ); // Pass the widget type string & parent id
+                      },
                       config: rootConfig,
                       selectedWidgetId: selectedWidgetId,
                       onWidgetSelected: (id, config) {
@@ -240,12 +249,15 @@ class _HierarchyTree extends StatelessWidget {
   final String? selectedWidgetId;
   final Function(String id, WidgetConfig config) onWidgetSelected;
   final Function(String id) onWidgetDeleted;
+  final Function(String parentId, WidgetInfo widgetInfo)?
+  onWidgetDropped; // <-- Add this
 
   const _HierarchyTree({
     required this.config,
     this.selectedWidgetId,
     required this.onWidgetSelected,
     required this.onWidgetDeleted,
+    required this.onWidgetDropped, // <-- Add this
   });
 
   String get _widgetId => config.id;
@@ -260,6 +272,7 @@ class _HierarchyTree extends StatelessWidget {
           selectedWidgetId: selectedWidgetId,
           onWidgetSelected: onWidgetSelected,
           onWidgetDeleted: onWidgetDeleted,
+          onWidgetDropped: onWidgetDropped, // Pass down
         ),
       );
     }
@@ -271,6 +284,7 @@ class _HierarchyTree extends StatelessWidget {
             selectedWidgetId: selectedWidgetId,
             onWidgetSelected: onWidgetSelected,
             onWidgetDeleted: onWidgetDeleted,
+            onWidgetDropped: onWidgetDropped, // Pass down
           ),
         );
       }
@@ -279,41 +293,112 @@ class _HierarchyTree extends StatelessWidget {
     final isSelected = _widgetId == selectedWidgetId;
     final hasChildren = children.isNotEmpty;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppConstants.spacingS,
-        vertical: AppConstants.spacingXS,
-      ),
-      elevation: isSelected
-          ? AppConstants.elevationMedium
-          : AppConstants.elevationLow,
-      color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.1) : null,
-      child: hasChildren
-          ? ExpansionTile(
-              title: _buildWidgetTitle(),
-              subtitle: _buildWidgetSubtitle(),
-              leading: _buildWidgetIcon(),
-              trailing: _buildWidgetActions(context),
-              initiallyExpanded: true,
-              backgroundColor: isSelected
-                  ? AppTheme.primaryColor.withValues(alpha: 0.05)
-                  : null,
-              children: children,
-              onExpansionChanged: (expanded) {
-                if (!expanded && isSelected) {
-                  // Keep selection visible
-                }
-              },
-            )
-          : ListTile(
-              title: _buildWidgetTitle(),
-              subtitle: _buildWidgetSubtitle(),
-              leading: _buildWidgetIcon(),
-              trailing: _buildWidgetActions(context),
-              selected: isSelected,
-              selectedTileColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-              onTap: () => onWidgetSelected(_widgetId, config),
-            ),
+    // Wrap the Card in a DragTarget to allow dropping widgets from the palette
+    return DragTarget<WidgetInfo>(
+      onWillAcceptWithDetails: (details) {
+        if (onWidgetDropped == null) return false;
+        final draggedType = details.data.name;
+        // Widget types list need to be refactored later
+        // List of widgets that can have children
+        const multiChildTypes = [
+          'Column',
+          'Row',
+          'Wrap',
+          'ListView',
+          'GridView',
+          'Stack',
+        ];
+        // List of widgets that can have a single child
+        const singleChildTypes = [
+          'Container',
+          'Center',
+          'Align',
+          'Card',
+          'Padding',
+          'SizedBox',
+          'Expanded',
+          'Flexible',
+          'SingleChildScrollView',
+          'PageView',
+          'Positioned',
+          'Scaffold',
+        ];
+        // List of widgets that cannot have children or child
+        const leafTypes = [
+          'Text',
+          'Icon',
+          'Checkbox',
+          'Switch',
+          'Radio',
+          'Slider',
+          'Image',
+          'ListTile',
+          'ElevatedButton',
+          'TextButton',
+          'OutlinedButton',
+          'TextField',
+          'TextFormField',
+        ];
+        // Prevent dropping into widgets that can't have children/child
+        if (multiChildTypes.contains(config.type)) {
+          if (config.type == draggedType) return false;
+          if (leafTypes.contains(config.type)) return false;
+          return true;
+        } else if (singleChildTypes.contains(config.type) &&
+            config.child == null) {
+          if (config.type == draggedType) return false;
+          if (leafTypes.contains(config.type)) return false;
+          return true;
+        }
+        // Otherwise, do not allow drop
+        return false;
+      },
+      onAcceptWithDetails: (widgetInfo) {
+        if (onWidgetDropped != null) {
+          onWidgetDropped!(_widgetId, widgetInfo.data);
+        }
+      },
+      builder: (context, candidateData, rejectedData) {
+        final isDraggingOver = candidateData.isNotEmpty;
+        return Card(
+          margin: const EdgeInsets.symmetric(
+            horizontal: AppConstants.spacingS,
+            vertical: AppConstants.spacingXS,
+          ),
+          elevation: isSelected
+              ? AppConstants.elevationMedium
+              : AppConstants.elevationLow,
+          color: isDraggingOver
+              ? AppTheme.primaryColor.withOpacity(0.15)
+              : (isSelected ? AppTheme.primaryColor.withOpacity(0.1) : null),
+          child: hasChildren
+              ? ExpansionTile(
+                  title: _buildWidgetTitle(),
+                  subtitle: _buildWidgetSubtitle(),
+                  leading: _buildWidgetIcon(),
+                  trailing: _buildWidgetActions(context),
+                  initiallyExpanded: true,
+                  backgroundColor: isSelected
+                      ? AppTheme.primaryColor.withOpacity(0.05)
+                      : null,
+                  children: children,
+                  onExpansionChanged: (expanded) {
+                    if (!expanded && isSelected) {
+                      // Keep selection visible
+                    }
+                  },
+                )
+              : ListTile(
+                  title: _buildWidgetTitle(),
+                  subtitle: _buildWidgetSubtitle(),
+                  leading: _buildWidgetIcon(),
+                  trailing: _buildWidgetActions(context),
+                  selected: isSelected,
+                  selectedTileColor: AppTheme.primaryColor.withOpacity(0.1),
+                  onTap: () => onWidgetSelected(_widgetId, config),
+                ),
+        );
+      },
     );
   }
 

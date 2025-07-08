@@ -209,6 +209,151 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
     return false;
   }
 
+  // Use this function to add a widget to a specific parent
+  /// Add a widget to a specific parent by ID
+  void addWidgetToParent(String parentId, String widgetType) {
+    _saveToHistory();
+    final builder = JsonUIBuilder();
+    final currentConfig = builder.jsonToConfig(state.theJson);
+    final newWidgetConfig = WidgetConfig(type: widgetType);
+
+    // Set default properties based on widget type (copied from _addGenericWidget)
+    switch (widgetType) {
+      case 'Text':
+        newWidgetConfig.properties['text'] = 'Hello World';
+        newWidgetConfig.properties['fontSize'] = 16.0;
+        newWidgetConfig.properties['color'] = 'black';
+        break;
+      case 'Container':
+        newWidgetConfig.properties['width'] = 100.0;
+        newWidgetConfig.properties['height'] = 100.0;
+        newWidgetConfig.properties['color'] = 'blue';
+        newWidgetConfig.properties['padding'] = 8.0;
+        break;
+      case 'ElevatedButton':
+      case 'TextButton':
+      case 'OutlinedButton':
+        newWidgetConfig.properties['text'] = 'Button';
+        newWidgetConfig.properties['color'] = 'primary';
+        break;
+      case 'TextField':
+      case 'TextFormField':
+        newWidgetConfig.properties['hintText'] = 'Enter text';
+        newWidgetConfig.properties['labelText'] = 'Label';
+        break;
+      case 'Icon':
+        newWidgetConfig.properties['icon'] = 'star';
+        newWidgetConfig.properties['size'] = 24.0;
+        newWidgetConfig.properties['color'] = 'black';
+        break;
+      case 'Image':
+        newWidgetConfig.properties['src'] = 'https://via.placeholder.com/150';
+        newWidgetConfig.properties['width'] = 150.0;
+        newWidgetConfig.properties['height'] = 150.0;
+        break;
+      case 'Card':
+        newWidgetConfig.properties['elevation'] = 4.0;
+        newWidgetConfig.properties['margin'] = 8.0;
+        break;
+      case 'ListTile':
+        newWidgetConfig.properties['title'] = 'List Item';
+        newWidgetConfig.properties['subtitle'] = 'Subtitle';
+        break;
+      case 'Checkbox':
+        newWidgetConfig.properties['value'] = false;
+        break;
+      case 'Switch':
+        newWidgetConfig.properties['value'] = false;
+        break;
+      case 'Radio':
+        newWidgetConfig.properties['value'] = 'option1';
+        newWidgetConfig.properties['groupValue'] = 'option1';
+        break;
+      case 'Slider':
+        newWidgetConfig.properties['value'] = 0.5;
+        newWidgetConfig.properties['min'] = 0.0;
+        newWidgetConfig.properties['max'] = 1.0;
+        break;
+      case 'FloatingActionButton':
+        newWidgetConfig.properties['backgroundColor'] = 'primary';
+        newWidgetConfig.properties['foregroundColor'] = 'white';
+        break;
+      case 'AppBar':
+        newWidgetConfig.properties['title'] = 'App Bar';
+        newWidgetConfig.properties['backgroundColor'] = 'primary';
+        break;
+      case 'Column':
+      case 'Row':
+        newWidgetConfig.properties['mainAxisAlignment'] = 'start';
+        newWidgetConfig.properties['crossAxisAlignment'] = 'center';
+        break;
+      case 'Stack':
+        newWidgetConfig.properties['alignment'] = 'center';
+        break;
+      case 'Positioned':
+        newWidgetConfig.properties['top'] = 0.0;
+        newWidgetConfig.properties['left'] = 0.0;
+        break;
+      case 'Expanded':
+      case 'Flexible':
+        newWidgetConfig.properties['flex'] = 1;
+        break;
+      case 'Padding':
+        newWidgetConfig.properties['padding'] = 8.0;
+        break;
+      case 'SizedBox':
+        newWidgetConfig.properties['width'] = 100.0;
+        newWidgetConfig.properties['height'] = 100.0;
+        break;
+      default:
+        break;
+    }
+
+    if (_addWidgetToSpecificParent(currentConfig, parentId, newWidgetConfig)) {
+      state = state.copyWith(theJson: builder.configToJson(currentConfig));
+    } else {
+      Toast.error('Could not add widget to $parentId');
+    }
+  }
+
+  // Helper method for addWidgetToParent
+
+  bool _addWidgetToSpecificParent(
+    WidgetConfig config,
+    String parentId,
+    WidgetConfig newWidget,
+  ) {
+    if (config.id == parentId) {
+      // Add as child or to children depending on config.type
+      if ([
+        'Column',
+        'Row',
+        'Wrap',
+        'ListView',
+        'GridView',
+        'Stack',
+      ].contains(config.type)) {
+        config.children ??= [];
+        config.children!.add(newWidget);
+      } else if (config.child == null) {
+        config.child = newWidget;
+      } else {
+        // Optionally handle replacing or error
+        return false;
+      }
+      return true;
+    }
+    if (config.child != null &&
+        _addWidgetToSpecificParent(config.child!, parentId, newWidget))
+      return true;
+    if (config.children != null) {
+      for (final child in config.children!) {
+        if (_addWidgetToSpecificParent(child, parentId, newWidget)) return true;
+      }
+    }
+    return false;
+  }
+
   /// Add a widget to the canvas
   void addWidgetToCanvas(String widgetType) {
     final builder = JsonUIBuilder();
