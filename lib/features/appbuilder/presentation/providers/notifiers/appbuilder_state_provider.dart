@@ -227,8 +227,8 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
       case 'Container':
         newWidgetConfig.properties['width'] = 100.0;
         newWidgetConfig.properties['height'] = 100.0;
-        newWidgetConfig.properties['color'] = 'blue';
-        newWidgetConfig.properties['padding'] = 8.0;
+        newWidgetConfig.properties['color'] = '#ffeedd';
+        //  newWidgetConfig.properties['padding'] = 8.0;
         break;
       case 'ElevatedButton':
       case 'TextButton':
@@ -463,8 +463,8 @@ class AppBuilderStateNotifier extends _$AppBuilderStateNotifier {
       case 'Container':
         newWidgetConfig.properties['width'] = 100.0;
         newWidgetConfig.properties['height'] = 100.0;
-        newWidgetConfig.properties['color'] = 'blue';
-        newWidgetConfig.properties['padding'] = 8.0;
+        newWidgetConfig.properties['color'] = '#ffeedd';
+        //   newWidgetConfig.properties['padding'] = 8.0;
         break;
       case 'ElevatedButton':
       case 'TextButton':
