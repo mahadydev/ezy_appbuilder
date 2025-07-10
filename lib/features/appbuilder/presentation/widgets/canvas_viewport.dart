@@ -19,7 +19,7 @@ class CanvasViewport extends ConsumerWidget {
   final Map<String, dynamic> screenMap;
   final void Function(DragTargetDetails<WidgetInfo>) onDragAccept;
   final void Function(String widgetId, Map<String, dynamic> properties)?
-      onWidgetSelected;
+  onWidgetSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +28,7 @@ class CanvasViewport extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.spacingXL),
         child: DeviceFrame(
-          device: Devices.android.onePlus8Pro,
+          device: Devices.android.samsungGalaxyA50,
           isFrameVisible: true,
           orientation: Orientation.portrait,
           screen: DragTarget<WidgetInfo>(
@@ -42,13 +42,13 @@ class CanvasViewport extends ConsumerWidget {
                 decoration: BoxDecoration(
                   border: isDraggedOver
                       ? Border.all(
-                          color: Colors.blue.withValues(alpha: 0.5),
-                          width: 20,
+                          color: Colors.lightGreenAccent.withValues(alpha: 0.5),
+                          width: 5,
                           strokeAlign: BorderSide.strokeAlignInside,
                         )
                       : null,
                   color: isDraggedOver
-                      ? Colors.blue.withValues(alpha: 0.05)
+                      ? Colors.lightGreenAccent.withValues(alpha: 0.05)
                       : null,
                 ),
                 child: _buildCanvasContent(appState, ref),
@@ -81,7 +81,10 @@ class CanvasViewport extends ConsumerWidget {
 
   /// Recursively wrap all widgets (except root Scaffold) with GestureDetector after building
   Widget wrapWidgetsWithGesture(
-      Widget widget, Map<String, dynamic> config, WidgetRef ref) {
+    Widget widget,
+    Map<String, dynamic> config,
+    WidgetRef ref,
+  ) {
     // Don't wrap root Scaffold
     if (config['type'] == 'Scaffold') {
       // Handle child
@@ -169,12 +172,80 @@ class CanvasViewport extends ConsumerWidget {
         widget is MultiChildRenderObjectWidget) {
       final childrenConfigs = config['children'] as List?;
       final children = (widget.children as List<Widget>?) ?? [];
-      if (childrenConfigs != null &&
-          children.length == childrenConfigs.length) {
-        final wrappedChildren = List<Widget>.generate(
-          children.length,
-          (i) => wrapWidgetsWithGesture(children[i], childrenConfigs[i], ref),
+      final wrappedChildren =
+          childrenConfigs != null && childrenConfigs.isNotEmpty
+          ? List<Widget>.generate(
+              childrenConfigs.length,
+              (i) => wrapWidgetsWithGesture(
+                i < children.length ? children[i] : const SizedBox.shrink(),
+                childrenConfigs[i],
+                ref,
+              ),
+            ).cast<Widget>()
+          : <Widget>[];
+      // Always wrap multi-child widgets (like Column, Row, etc.) in a DragTarget
+      if (canAcceptDrop(config)) {
+        return DragTarget<WidgetInfo>(
+          onAcceptWithDetails: (details) {
+            ref
+                .read(appBuilderStateNotifierProvider.notifier)
+                .addWidgetToParent(config['id'], details.data.name);
+          },
+          builder: (context, candidateData, rejectedData) {
+            final isDraggedOver = candidateData.isNotEmpty;
+            Widget rebuilt;
+            if (widget is Column) {
+              rebuilt = Column(
+                key: widget.key,
+                mainAxisAlignment: widget.mainAxisAlignment,
+                crossAxisAlignment: widget.crossAxisAlignment,
+                mainAxisSize: widget.mainAxisSize,
+                children: wrappedChildren,
+              );
+            } else if (widget is Row) {
+              rebuilt = Row(
+                key: widget.key,
+                mainAxisAlignment: widget.mainAxisAlignment,
+                crossAxisAlignment: widget.crossAxisAlignment,
+                mainAxisSize: widget.mainAxisSize,
+                children: wrappedChildren,
+              );
+            } else if (widget is Stack) {
+              rebuilt = Stack(
+                key: widget.key,
+                alignment: widget.alignment,
+                textDirection: widget.textDirection,
+                clipBehavior: widget.clipBehavior,
+                children: wrappedChildren,
+              );
+            } else {
+              rebuilt = widget;
+            }
+            return Container(
+              decoration: BoxDecoration(
+                border: isDraggedOver
+                    ? Border.all(
+                        color: Colors.red.withValues(alpha: 0.5),
+                        width: 3,
+                        strokeAlign: BorderSide.strokeAlignInside,
+                      )
+                    : null,
+                color: isDraggedOver
+                    ? Colors.red.withValues(alpha: 0.05)
+                    : null,
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  final widgetId = config['id']?.toString() ?? '';
+                  onWidgetSelected?.call(widgetId, config);
+                },
+                child: rebuilt,
+              ),
+            );
+          },
         );
+      } else {
+        // fallback: just return the rebuilt widget
         if (widget is Column) {
           return Column(
             key: widget.key,
@@ -196,34 +267,75 @@ class CanvasViewport extends ConsumerWidget {
             key: widget.key,
             alignment: widget.alignment,
             textDirection: widget.textDirection,
-            fit: widget.fit,
             clipBehavior: widget.clipBehavior,
             children: wrappedChildren,
           );
         }
-        // Add more widgets as needed
       }
     }
 
-    // Handle single child for Container only
-    if (config.containsKey('child') && widget is Container) {
+    // Handle all Container widgets (regardless of child key)
+    if (widget is Container) {
       final childConfig = config['child'] as Map<String, dynamic>?;
+      Widget wrappedChild = widget.child ?? const SizedBox.shrink();
       if (childConfig != null && widget.child != null) {
-        final wrappedChild =
-            wrapWidgetsWithGesture(widget.child!, childConfig, ref);
-        return Container(
-          key: widget.key,
-          alignment: widget.alignment,
-          padding: widget.padding,
-          color: widget.color,
-          decoration: widget.decoration,
-          foregroundDecoration: widget.foregroundDecoration,
-          constraints: widget.constraints,
-          margin: widget.margin,
-          transform: widget.transform,
-          transformAlignment: widget.transformAlignment,
-          clipBehavior: widget.clipBehavior,
-          child: wrappedChild,
+        wrappedChild = wrapWidgetsWithGesture(widget.child!, childConfig, ref);
+      }
+      // Always wrap the container (even if no child)
+      final containerWidget = Container(
+        key: widget.key,
+        alignment: widget.alignment,
+        padding: widget.padding,
+        color: widget.color,
+        decoration: widget.decoration,
+        foregroundDecoration: widget.foregroundDecoration,
+        constraints: widget.constraints,
+        margin: widget.margin,
+        transform: widget.transform,
+        transformAlignment: widget.transformAlignment,
+        clipBehavior: widget.clipBehavior,
+        child: wrappedChild,
+      );
+      // Only wrap with DragTarget if can accept drop, else just GestureDetector
+      if (canAcceptDrop(config)) {
+        return DragTarget<WidgetInfo>(
+          onAcceptWithDetails: (details) {
+            ref
+                .read(appBuilderStateNotifierProvider.notifier)
+                .addWidgetToParent(config['id'], details.data.name);
+          },
+          builder: (context, candidateData, rejectedData) {
+            final isDraggedOver = candidateData.isNotEmpty;
+            return Container(
+              decoration: BoxDecoration(
+                border: isDraggedOver
+                    ? Border.all(
+                        color: Colors.red.withValues(alpha: 0.5),
+                        width: 3,
+                        strokeAlign: BorderSide.strokeAlignInside,
+                      )
+                    : null,
+                color: isDraggedOver
+                    ? Colors.red.withValues(alpha: 0.05)
+                    : null,
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  final widgetId = config['id']?.toString() ?? '';
+                  onWidgetSelected?.call(widgetId, config);
+                },
+                child: containerWidget,
+              ),
+            );
+          },
+        );
+      } else {
+        return GestureDetector(
+          onTap: () {
+            final widgetId = config['id']?.toString() ?? '';
+            onWidgetSelected?.call(widgetId, config);
+          },
+          child: containerWidget,
         );
       }
     }
@@ -231,10 +343,9 @@ class CanvasViewport extends ConsumerWidget {
     if (canAcceptDrop(config)) {
       return DragTarget<WidgetInfo>(
         onAcceptWithDetails: (details) {
-          ref.read(appBuilderStateNotifierProvider.notifier).addWidgetToParent(
-                config['id'],
-                details.data.name,
-              );
+          ref
+              .read(appBuilderStateNotifierProvider.notifier)
+              .addWidgetToParent(config['id'], details.data.name);
         },
         builder: (context, candidateData, rejectedData) {
           final isDraggedOver = candidateData.isNotEmpty;
@@ -243,7 +354,7 @@ class CanvasViewport extends ConsumerWidget {
               border: isDraggedOver
                   ? Border.all(
                       color: Colors.red.withValues(alpha: 0.5),
-                      width: 20,
+                      width: 3,
                       strokeAlign: BorderSide.strokeAlignInside,
                     )
                   : null,
@@ -252,9 +363,7 @@ class CanvasViewport extends ConsumerWidget {
             child: GestureDetector(
               onTap: () {
                 final widgetId = config['id']?.toString() ?? '';
-                final properties =
-                    config['properties'] as Map<String, dynamic>? ?? {};
-                onWidgetSelected?.call(widgetId, properties);
+                onWidgetSelected?.call(widgetId, config);
               },
               child: widget,
             ),
@@ -262,13 +371,12 @@ class CanvasViewport extends ConsumerWidget {
         },
       );
     } else {
+      // If it can't accept drops, just wrap with GestureDetector
       // Just wrap with GestureDetector, no DragTarget or red border
       return GestureDetector(
         onTap: () {
           final widgetId = config['id']?.toString() ?? '';
-          final properties =
-              config['properties'] as Map<String, dynamic>? ?? {};
-          onWidgetSelected?.call(widgetId, properties);
+          onWidgetSelected?.call(widgetId, config);
         },
         child: widget,
       );
@@ -304,9 +412,11 @@ class CanvasViewport extends ConsumerWidget {
     // Handle children list
     if (newNode.containsKey('children') && newNode['children'] is List) {
       newNode['children'] = (newNode['children'] as List)
-          .map((child) => child is Map<String, dynamic>
-              ? wrapAllWidgetsWithGesture(child)
-              : child)
+          .map(
+            (child) => child is Map<String, dynamic>
+                ? wrapAllWidgetsWithGesture(child)
+                : child,
+          )
           .toList();
     }
 
@@ -363,7 +473,7 @@ class CanvasViewport extends ConsumerWidget {
             .toList();
       }
 
-      return node;
+      return node; // Always return node at the end
     }
 
     return traverse(json);
