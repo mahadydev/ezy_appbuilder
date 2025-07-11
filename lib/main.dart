@@ -1,13 +1,13 @@
 import 'package:ezy_appbuilder/core/constants/app_constants.dart';
 import 'package:ezy_appbuilder/core/theme/app_theme.dart';
-import 'package:ezy_appbuilder/features/appbuilder/presentation/screens/app_builder_screen.dart';
+import 'package:ezy_appbuilder/features/appbuilder_new/presentation/screens/app_builder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
-  runApp(ProviderScope(child: const EzyCourseAppBuilder()));
+  runApp(const ProviderScope(child: EzyCourseAppBuilder()));
 }
 
 class EzyCourseAppBuilder extends StatelessWidget {

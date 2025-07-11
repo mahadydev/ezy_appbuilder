@@ -1,10 +1,9 @@
 /// Application-wide constants
 class AppConstants {
   // App Information
-  static const String appName = 'Ezycourse App Builder';
-  static const String appDescription =
-      'Visual app builder for Ezycourse platform';
-  static const String version = '1.0.0';
+  static const String appName = 'Ezy App Builder';
+  static const String appDescription = 'A Visual app builder for all';
+  static const String version = '0.0.1';
 
   // Canvas Configuration
   static const double canvasWidth = 440.0;
@@ -14,6 +13,7 @@ class AppConstants {
   static const double zoomStep = 0.1;
 
   // Layout Dimensions
+  static const double navRailSize = 80.0;
   static const double paletteWidthWide = 340.0;
   static const double paletteWidthNarrow = 160.0;
   static const double propertyEditorWidth = 340.0;
