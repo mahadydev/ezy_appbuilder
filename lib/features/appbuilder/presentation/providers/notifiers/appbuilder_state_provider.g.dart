@@ -7,7 +7,7 @@ part of 'appbuilder_state_provider.dart';
 // **************************************************************************
 
 String _$appBuilderStateNotifierHash() =>
-    r'd5ef4630266dc2083940426c7059ccf6718cd696';
+    r'ffc825e567239ac11709e934633a13725b8233a2';
 
 /// See also [AppBuilderStateNotifier].
 @ProviderFor(AppBuilderStateNotifier)

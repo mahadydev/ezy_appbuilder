@@ -1,7 +1,5 @@
+import 'package:ezy_appbuilder/core/packages/json_ui_builder/json_ui_builder.dart';
 import 'package:flutter/material.dart';
-import '../core/widget_registry.dart';
-import '../models/widget_config.dart';
-import '../parsers/widget_parser.dart';
 
 /// Layout widgets implementation for JSON UI Builder.
 class LayoutWidgets {

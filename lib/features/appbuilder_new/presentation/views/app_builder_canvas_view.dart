@@ -49,10 +49,18 @@ class AppBuilderCanvasView extends ConsumerWidget {
       return const EmptyCanvas();
     } else {
       final builder = JsonUIBuilder();
-
       final widget = builder.buildFromJson(canvasState.theJson);
 
-      return widget;
+      // Wrap the entire widget tree with selection capabilities
+      return GestureDetector(
+        onTap: () {
+          // Clear selection when tapping on empty space
+          ref
+              .read(appBuilderCanvasNotifierProvider.notifier)
+              .selectWidget(null);
+        },
+        child: widget,
+      );
     }
   }
 }

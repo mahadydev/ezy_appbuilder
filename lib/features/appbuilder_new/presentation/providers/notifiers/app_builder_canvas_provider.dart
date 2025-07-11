@@ -117,14 +117,7 @@ class AppBuilderCanvasNotifier extends _$AppBuilderCanvasNotifier {
     final newWidgetConfig = WidgetConfig(type: widgetType);
 
     // Set default properties for required properties
-    switch (widgetType) {
-      case 'Text':
-        newWidgetConfig.setProperty('data', 'Your Text Here');
-        newWidgetConfig.setProperty('color', '#000000');
-        break;
-      default:
-        break;
-    }
+    _setDefaultProperties(newWidgetConfig);
 
     _saveToHistory();
 
@@ -137,21 +130,52 @@ class AppBuilderCanvasNotifier extends _$AppBuilderCanvasNotifier {
   bool _addToParentWidget(WidgetConfig parent, WidgetConfig child) {
     switch (parent.type) {
       case 'Scaffold':
-        if (parent.child == null) {
-          parent.child = child;
+        if (parent.child == null && !parent.properties.containsKey('body')) {
+          parent.setProperty('body', child.toJson());
           return true;
         } else {
-          Toast.error('Scaffold can only have one child widget');
+          Toast.error('Scaffold already has a body widget');
           return false;
         }
 
       case 'Column':
       case 'Row':
       case 'ListView':
+      case 'Stack':
+      case 'Wrap':
         parent.children ??= [];
         parent.addChild(child);
         return true;
+
+      case 'Container':
+      case 'Padding':
+      case 'Center':
+      case 'Align':
+      case 'Card':
+      case 'SizedBox':
+        if (parent.child == null) {
+          parent.child = child;
+          return true;
+        } else {
+          Toast.error('${parent.type} can only have one child widget');
+          return false;
+        }
+
       default:
+        // Try to find a suitable parent recursively
+        if (parent.child != null && _addToParentWidget(parent.child!, child)) {
+          return true;
+        }
+
+        if (parent.children != null) {
+          for (final childWidget in parent.children!) {
+            if (_addToParentWidget(childWidget, child)) {
+              return true;
+            }
+          }
+        }
+
+        Toast.error('Cannot find a suitable parent for ${child.type}');
         return false;
     }
   }
@@ -211,6 +235,128 @@ class AppBuilderCanvasNotifier extends _$AppBuilderCanvasNotifier {
   /// Select a widget by its ID
   void selectWidget(String? widgetId) {
     state = state.copyWith(selectedWidgetId: widgetId);
+  }
+
+  /// Add a widget to a specific parent widget
+  void addWidgetToParent(String widgetType, String parentId) {
+    final builder = JsonUIBuilder();
+
+    // Validate the widget type
+    if (!builder.isWidgetTypeSupported(widgetType)) {
+      Toast.error('Unsupported widget type: $widgetType');
+      return;
+    }
+
+    if (state.theJson.isEmpty) {
+      Toast.error('Canvas is empty. Please add a scaffold first.');
+      return;
+    }
+
+    final currentConfig = builder.jsonToConfig(state.theJson);
+    final parentWidget = builder.findWidgetById(currentConfig, parentId);
+
+    if (parentWidget == null) {
+      Toast.error('Parent widget not found');
+      return;
+    }
+
+    // Check if parent can accept children
+    if (!parentWidget.canAcceptChildren) {
+      Toast.error('${parentWidget.type} cannot accept child widgets');
+      return;
+    }
+
+    // Create the new widget config
+    final newWidgetConfig = WidgetConfig(type: widgetType);
+
+    // Set default properties for specific widget types
+    _setDefaultProperties(newWidgetConfig);
+
+    // Check if parent can accept this specific child type
+    if (!parentWidget.canAddChildOfType(widgetType)) {
+      Toast.error('${parentWidget.type} cannot accept $widgetType as a child');
+      return;
+    }
+
+    _saveToHistory();
+
+    // Try to add the child to the parent
+    if (parentWidget.tryAddChild(newWidgetConfig)) {
+      state = state.copyWith(theJson: builder.configToJson(currentConfig));
+      Toast.success('Widget added to ${parentWidget.type}');
+    } else {
+      Toast.error('Failed to add widget to ${parentWidget.type}');
+    }
+  }
+
+  /// Set default properties for specific widget types
+  void _setDefaultProperties(WidgetConfig config) {
+    switch (config.type) {
+      case 'Text':
+        config.setProperty('data', 'Your Text Here');
+        config.setProperty('style', {'color': '#000000', 'fontSize': 16.0});
+        break;
+      case 'Container':
+        config.setProperty('width', 100.0);
+        config.setProperty('height', 100.0);
+        config.setProperty('decoration', {'color': '#F0F0F0'});
+        break;
+      case 'ElevatedButton':
+        config.setProperty('child', {
+          'type': 'Text',
+          'properties': {'data': 'Button'},
+        });
+        break;
+      case 'Column':
+        config.setProperty('mainAxisAlignment', 'start');
+        config.setProperty('crossAxisAlignment', 'center');
+        break;
+      case 'Row':
+        config.setProperty('mainAxisAlignment', 'start');
+        config.setProperty('crossAxisAlignment', 'center');
+        break;
+      case 'Padding':
+        config.setProperty('padding', 16.0);
+        break;
+      case 'SizedBox':
+        config.setProperty('width', 100.0);
+        config.setProperty('height', 100.0);
+        break;
+      default:
+        break;
+    }
+  }
+
+  /// Update properties of a selected widget
+  void updateWidgetProperty(
+    String widgetId,
+    String propertyKey,
+    dynamic value,
+  ) {
+    if (state.theJson.isEmpty) return;
+
+    final builder = JsonUIBuilder();
+    final currentConfig = builder.jsonToConfig(state.theJson);
+    final widget = builder.findWidgetById(currentConfig, widgetId);
+
+    if (widget == null) {
+      Toast.error('Widget not found');
+      return;
+    }
+
+    _saveToHistory();
+
+    widget.setProperty(propertyKey, value);
+    state = state.copyWith(theJson: builder.configToJson(currentConfig));
+  }
+
+  /// Get the currently selected widget configuration
+  WidgetConfig? getSelectedWidget() {
+    if (state.selectedWidgetId == null || state.theJson.isEmpty) return null;
+
+    final builder = JsonUIBuilder();
+    final currentConfig = builder.jsonToConfig(state.theJson);
+    return builder.findWidgetById(currentConfig, state.selectedWidgetId!);
   }
 
   /// Load project from local storage

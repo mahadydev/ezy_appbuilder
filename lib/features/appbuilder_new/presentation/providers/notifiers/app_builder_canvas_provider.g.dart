@@ -7,7 +7,7 @@ part of 'app_builder_canvas_provider.dart';
 // **************************************************************************
 
 String _$appBuilderCanvasNotifierHash() =>
-    r'5715e4abc7dbdb5269391465e16101a0e1644a5c';
+    r'1bd955bb5bd502a266b9a7eb4e0209dc7d4af38b';
 
 /// See also [AppBuilderCanvasNotifier].
 @ProviderFor(AppBuilderCanvasNotifier)

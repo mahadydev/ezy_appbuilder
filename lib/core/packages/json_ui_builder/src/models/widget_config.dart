@@ -197,4 +197,166 @@ class WidgetConfig {
     }
     return true;
   }
+
+  /// Checks if this widget type can accept a single child widget.
+  bool get canAcceptSingleChild {
+    const singleChildWidgets = {
+      'Container',
+      'Padding',
+      'Center',
+      'Align',
+      'SizedBox',
+      'Card',
+      'Material',
+      'InkWell',
+      'GestureDetector',
+      'Expanded',
+      'Flexible',
+      'FittedBox',
+      'ClipRRect',
+      'ClipOval',
+      'Transform',
+      'AnimatedContainer',
+      'Scaffold', // body property
+      'AppBar', // title property
+      'Drawer',
+      'SingleChildScrollView',
+      'AspectRatio',
+      'ConstrainedBox',
+      'SizedOverflowBox',
+      'UnconstrainedBox',
+      'LimitedBox',
+      'OverflowBox',
+      'FractionallySizedBox',
+      'Positioned',
+      'SafeArea',
+      'Visibility',
+      'Opacity',
+      'DecoratedBox',
+      'RotatedBox',
+    };
+    return singleChildWidgets.contains(type);
+  }
+
+  /// Checks if this widget type can accept multiple children widgets.
+  bool get canAcceptMultipleChildren {
+    const multiChildWidgets = {
+      'Column',
+      'Row',
+      'Stack',
+      'Wrap',
+      'ListView',
+      'GridView',
+      'PageView',
+      'TabBarView',
+      'IndexedStack',
+      'Flow',
+      'Table',
+      'ListBody',
+    };
+    return multiChildWidgets.contains(type);
+  }
+
+  /// Checks if this widget can accept any children (single or multiple).
+  bool get canAcceptChildren =>
+      canAcceptSingleChild || canAcceptMultipleChildren;
+
+  /// Checks if this widget currently has space for more children.
+  bool get hasSpaceForChildren {
+    if (canAcceptSingleChild) {
+      return child == null && !properties.containsKey('child');
+    }
+    if (canAcceptMultipleChildren) {
+      return true; // Multi-child widgets can usually accept more children
+    }
+    return false;
+  }
+
+  /// Gets the maximum number of children this widget can accept.
+  /// Returns -1 for unlimited children.
+  int get maxChildrenCount {
+    if (canAcceptSingleChild) return 1;
+    if (canAcceptMultipleChildren) return -1; // Unlimited
+    return 0;
+  }
+
+  /// Checks if a specific widget type can be added as a child.
+  bool canAddChildOfType(String childType) {
+    // Check basic child acceptance
+    if (!canAcceptChildren) return false;
+
+    // Special cases for specific widget relationships
+    switch (type) {
+      case 'Scaffold':
+        // Scaffold can accept most widgets but not another Scaffold
+        return childType != 'Scaffold' && childType != 'MaterialApp';
+
+      case 'AppBar':
+        // AppBar has specific child restrictions
+        if (childType == 'Text' ||
+            childType == 'Icon' ||
+            childType == 'IconButton') {
+          return true;
+        }
+        return false;
+
+      case 'ListView':
+      case 'Column':
+      case 'Row':
+        // These can accept most widgets except other scrolling widgets inside ListView
+        if (type == 'ListView' && _isScrollingWidget(childType)) {
+          return false;
+        }
+        return true;
+
+      case 'Stack':
+        // Stack can accept most widgets, often wrapped in Positioned
+        return true;
+
+      default:
+        return true;
+    }
+  }
+
+  /// Helper method to check if a widget type is a scrolling widget.
+  bool _isScrollingWidget(String widgetType) {
+    const scrollingWidgets = {
+      'ListView',
+      'GridView',
+      'PageView',
+      'SingleChildScrollView',
+      'CustomScrollView',
+    };
+    return scrollingWidgets.contains(widgetType);
+  }
+
+  /// Attempts to add a child widget with proper validation.
+  /// Returns true if successful, false otherwise.
+  bool tryAddChild(WidgetConfig childWidget) {
+    if (!canAddChildOfType(childWidget.type)) {
+      return false;
+    }
+
+    if (canAcceptSingleChild && child == null) {
+      child = childWidget;
+      return true;
+    } else if (canAcceptMultipleChildren) {
+      addChild(childWidget);
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Gets a user-friendly description of what children this widget can accept.
+  String get childAcceptanceDescription {
+    if (!canAcceptChildren) {
+      return 'This widget cannot accept child widgets.';
+    } else if (canAcceptSingleChild) {
+      return 'This widget can accept one child widget.';
+    } else if (canAcceptMultipleChildren) {
+      return 'This widget can accept multiple child widgets.';
+    }
+    return 'Unknown child acceptance rules.';
+  }
 }
